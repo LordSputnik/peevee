@@ -26,7 +26,7 @@ from distutils.core import setup
 setup(
     name=u'peevee',
     version=u'0.1',
-    description=u'A path validator and transformer',
+    description=u'A path validator and transformer for multiple platforms',
     author=u'Ben Ockmore',
     author_email=u'ben.sput@gmail.com',
     url=u'https://bitbucket.org/LordSputnik/peevee',
