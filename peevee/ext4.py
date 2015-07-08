@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 # Copyright (c) 2015 Ben Ockmore
@@ -21,16 +20,36 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from distutils.core import setup
+""" This modules validates and transforms paths for the ext4 file system. ext4
+is a filesystem commonly used in modern Linux variants. ext4 has a maximum
+filename length of 255 bytes, and allows all characters apart from NUL and /,
+and all filenames apart from "." and "..".
+"""
 
-setup(
-    name=u'peevee',
-    version=u'0.1',
-    description=u'A path validator and transformer for multiple platforms',
-    author=u'Ben Ockmore',
-    author_email=u'ben.sput@gmail.com',
-    url=u'https://bitbucket.org/LordSputnik/peevee',
-    packages=[u'peevee'],
-    requires=[u'pathlib (>=1.0.1)', u'six (>=1.9.0)'],
-    provides=[u'peevee']
-)
+import pathlib
+import six
+
+
+def validate(input_path):
+    """ Validates a unicode input path for the ext4 filesystem. """
+
+    if not isinstance(input_path, six.text_type):
+        raise TypeError("ext4.validate: input path must be a unicode string")
+
+    # First, split path into parts - this has a side effect of removing
+    # '/' characters
+    input_path = pathlib.PurePath(input_path)
+    if input_path.is_absolute():
+        parts = input_path.parts[1:]
+    else:
+        parts = input_path.parts
+
+    for part in parts:
+        part = part.encode('utf8')
+        if len(part) > 255 or '\x00' in part:
+            return False
+
+        if part in ['.', '..']:
+            return False
+
+    return True
